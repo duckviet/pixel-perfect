@@ -47,7 +47,7 @@ export const Route = createFileRoute("/activities/$slug")({
 });
 
 function ActivityDetailPage() {
-  const a = Route.useLoaderData();
+  const a = Route.useLoaderData() as Activity;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 lg:px-8 lg:py-16">

@@ -12,6 +12,12 @@ function getRegistered(): Set<string> {
   }
 }
 
+const emptySet = new Set<string>();
+
+function getServerSnapshot(): Set<string> {
+  return emptySet;
+}
+
 function saveRegistered(set: Set<string>) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
 }
@@ -30,7 +36,7 @@ function emitChange() {
 }
 
 export function useRegisteredActivities() {
-  const registered = useSyncExternalStore(subscribe, getRegistered);
+  const registered = useSyncExternalStore(subscribe, getRegistered, getServerSnapshot);
 
   const isRegistered = useCallback(
     (slug: string) => registered.has(slug),

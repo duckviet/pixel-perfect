@@ -207,4 +207,16 @@
   .hero-bg {
     background-image: var(--gradient-hero);
   }
+
+  .section-alt {
+    background-color: var(--surface);
+    background-image:
+      radial-gradient(ellipse 70% 40% at 20% 80%, oklch(0.94 0.06 30 / 0.25), transparent),
+      radial-gradient(ellipse 50% 30% at 80% 10%, oklch(0.93 0.05 320 / 0.2), transparent);
+  }
+
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, oklch(0.88 0.04 300 / 0.5), transparent);
+  }
 }

@@ -1,16 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  Calendar,
-  ExternalLink,
-  Mail,
-  Trophy,
-  ScrollText,
-  Building2,
-  Upload,
-} from "lucide-react";
+import { ArrowLeft, Calendar, ExternalLink, Mail, Trophy, ScrollText, Building2, Upload, CircleCheck as CheckCircle2 } from "lucide-react";
 import { GlassCard } from "@/components/common/GlassCard";
 import { CriterionBadge } from "@/components/common/CriterionBadge";
+import { ActivityThumbnail } from "@/components/common/ActivityThumbnail";
+import { useRegisteredActivities } from "@/hooks/use-registered-activities";
 import { ACTIVITIES, REVIEW_LEVELS, type Activity } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/activities/$slug")({
@@ -48,6 +41,8 @@ export const Route = createFileRoute("/activities/$slug")({
 
 function ActivityDetailPage() {
   const a = Route.useLoaderData() as Activity;
+  const { isRegistered, register } = useRegisteredActivities();
+  const registered = isRegistered(a.slug);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 lg:px-8 lg:py-16">
@@ -62,9 +57,10 @@ function ActivityDetailPage() {
       {/* Hero */}
       <div className="mt-6 gradient-shell">
         <div className="overflow-hidden p-0">
-          <div
-            className="aspect-[21/9] w-full"
-            style={{ backgroundImage: a.thumbnailGradient }}
+          <ActivityThumbnail
+            gradient={a.thumbnailGradient}
+            criteria={a.criteria}
+            registered={registered}
           />
           <div className="p-8 md:p-12">
             <div className="flex flex-wrap items-center gap-2">
@@ -83,15 +79,23 @@ function ActivityDetailPage() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href={a.registrationUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-[var(--gradient-primary)] px-6 py-3 text-sm font-medium text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
-              >
-                Tham gia ngay
-                <ExternalLink className="h-4 w-4" strokeWidth={1.5} />
-              </a>
+              {registered ? (
+                <button
+                  disabled
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-[var(--shadow-glow)]"
+                >
+                  <CheckCircle2 className="h-4 w-4" strokeWidth={2} />
+                  Đã đăng ký
+                </button>
+              ) : (
+                <button
+                  onClick={() => register(a.slug)}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition-all hover:bg-primary/90 hover:scale-[1.02]"
+                >
+                  Tham gia ngay
+                  <ExternalLink className="h-4 w-4" strokeWidth={1.5} />
+                </button>
+              )}
               <Link
                 to="/login"
                 className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-medium transition-colors hover:bg-accent"

@@ -1,15 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  Award,
-  Users,
-  Target,
-  ArrowRight,
-  Sparkles,
-  Trophy,
-  CheckCircle2,
-} from "lucide-react";
+import { Award, Users, Target, ArrowRight, Sparkles, Trophy, CircleCheck as CheckCircle2, LayoutGrid } from "lucide-react";
 import { GlassCard } from "@/components/common/GlassCard";
 import { CRITERIA, CriterionBadge } from "@/components/common/CriterionBadge";
+import { ActivityThumbnail } from "@/components/common/ActivityThumbnail";
+import { useRegisteredActivities } from "@/hooks/use-registered-activities";
 import { ACTIVITIES, LEADERBOARD, STATS } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/")({
@@ -28,11 +22,12 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const featured = ACTIVITIES.slice(0, 3);
+  const { isRegistered } = useRegisteredActivities();
 
   return (
-    <div className="hero-bg">
+    <div>
       {/* HERO */}
-      <section className="relative overflow-hidden">
+      <section className="hero-bg relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 pt-20 pb-24 lg:px-8 lg:pt-28">
           <div className="mx-auto max-w-3xl text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
@@ -41,7 +36,7 @@ function HomePage() {
             </span>
             <h1 className="mt-6 font-display text-5xl leading-[1.05] md:text-6xl lg:text-7xl">
               Một <span className="text-gradient italic">bản đồ</span>,
-              <br /> năm tiêu chí, <br /> vô vàn hành trình.
+              <br /> năm tiêu chí, <br /> vô vàn <span className="text-gradient italic">hành trình</span>.
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
               Bản đồ 5 Tốt giúp sinh viên ULIS theo dõi tiêu chí, khám phá
@@ -50,7 +45,7 @@ function HomePage() {
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/register"
-                className="inline-flex items-center gap-2 rounded-full bg-[var(--gradient-primary)] px-6 py-3 text-sm font-medium text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition-all hover:bg-primary/90 hover:scale-[1.02]"
               >
                 Đăng ký ngay
                 <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
@@ -85,33 +80,39 @@ function HomePage() {
         </div>
       </section>
 
+      <div className="section-divider" />
+
       {/* CRITERIA */}
-      <section className="mx-auto max-w-7xl px-4 py-24 lg:px-8">
-        <SectionHeader
-          eyebrow="Năm tiêu chí"
-          title="Cấu trúc danh hiệu Sinh viên 5 Tốt"
-          description="Mỗi sinh viên cần đạt cả 5 tiêu chí — từ đạo đức tới hội nhập — ở cấp độ tương ứng để được xét chọn."
-        />
-        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {CRITERIA.map((c, i) => (
-            <GlassCard key={c.id} className="group p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-glow)]">
-              <div
-                className="grid h-10 w-10 place-items-center rounded-xl text-sm font-semibold"
-                style={{
-                  backgroundColor: `color-mix(in oklab, ${c.colorVar} 15%, transparent)`,
-                  color: c.colorVar,
-                }}
-              >
-                0{i + 1}
-              </div>
-              <h3 className="mt-5 text-lg font-semibold">{c.label}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {c.description}
-              </p>
-            </GlassCard>
-          ))}
+      <section className="section-alt">
+        <div className="mx-auto max-w-7xl px-4 py-24 lg:px-8">
+          <SectionHeader
+            eyebrow="Năm tiêu chí"
+            title="Cấu trúc danh hiệu Sinh viên 5 Tốt"
+            description="Mỗi sinh viên cần đạt cả 5 tiêu chí — từ đạo đức tới hội nhập — ở cấp độ tương ứng để được xét chọn."
+          />
+          <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {CRITERIA.map((c, i) => (
+              <GlassCard key={c.id} className="group p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-glow)]">
+                <div
+                  className="grid h-10 w-10 place-items-center rounded-xl text-sm font-semibold"
+                  style={{
+                    backgroundColor: `color-mix(in oklab, ${c.colorVar} 15%, transparent)`,
+                    color: c.colorVar,
+                  }}
+                >
+                  0{i + 1}
+                </div>
+                <h3 className="mt-5 text-lg font-semibold">{c.label}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {c.description}
+                </p>
+              </GlassCard>
+            ))}
+          </div>
         </div>
       </section>
+
+      <div className="section-divider" />
 
       {/* FEATURED ACTIVITIES */}
       <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
@@ -139,9 +140,10 @@ function HomePage() {
               className="group block"
             >
               <GlassCard className="overflow-hidden p-0 transition-all group-hover:-translate-y-1 group-hover:shadow-[var(--shadow-glow)]">
-                <div
-                  className="aspect-[16/10] w-full"
-                  style={{ backgroundImage: a.thumbnailGradient }}
+                <ActivityThumbnail
+                  gradient={a.thumbnailGradient}
+                  criteria={a.criteria}
+                  registered={isRegistered(a.slug)}
                 />
                 <div className="p-6">
                   <div className="flex flex-wrap gap-1.5">
@@ -162,101 +164,133 @@ function HomePage() {
         </div>
       </section>
 
+      <div className="section-divider" />
+
       {/* LEADERBOARD */}
-      <section className="mx-auto max-w-7xl px-4 py-24 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr]">
-          <div>
-            <SectionHeader
-              eyebrow="Bảng xếp hạng"
-              title="Những ULISer dẫn đầu"
-              description="Xếp hạng tính theo số hoạt động đã có minh chứng được duyệt trong học kỳ."
-              align="left"
-            />
-            <div className="mt-8 flex items-center gap-3 rounded-2xl border border-border bg-surface/60 p-5 backdrop-blur">
-              <Trophy className="h-9 w-9 text-rose" strokeWidth={1.5} />
-              <div>
-                <p className="text-sm font-semibold">Cập nhật mỗi 24 giờ</p>
-                <p className="text-xs text-muted-foreground">
-                  Dựa trên minh chứng đã được cán bộ duyệt
-                </p>
+      <section className="section-alt">
+        <div className="mx-auto max-w-7xl px-4 py-24 lg:px-8">
+          <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr]">
+            <div>
+              <SectionHeader
+                eyebrow="Bảng xếp hạng"
+                title="Những ULISer dẫn đầu"
+                description="Xếp hạng tính theo số hoạt động đã có minh chứng được duyệt trong học kỳ."
+                align="left"
+              />
+              <div className="mt-8 flex items-center gap-3 rounded-2xl border border-border bg-surface/60 p-5 backdrop-blur">
+                <Trophy className="h-9 w-9 text-rose" strokeWidth={1.5} />
+                <div>
+                  <p className="text-sm font-semibold">Cập nhật mỗi 24 giờ</p>
+                  <p className="text-xs text-muted-foreground">
+                    Dựa trên minh chứng đã được cán bộ duyệt
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <GlassCard className="overflow-hidden p-0">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border/60 bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
-                  <th className="px-6 py-4">#</th>
-                  <th className="px-6 py-4">Sinh viên</th>
-                  <th className="px-6 py-4">Đơn vị</th>
-                  <th className="px-6 py-4 text-right">Hoạt động</th>
-                </tr>
-              </thead>
-              <tbody>
-                {LEADERBOARD.map((row) => (
-                  <tr
-                    key={row.rank}
-                    className="border-b border-border/40 last:border-0 transition-colors hover:bg-accent/40"
-                  >
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
-                          row.rank <= 3
-                            ? "bg-[var(--gradient-primary)] text-primary-foreground"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {row.rank}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">{row.name}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">
-                      {row.unit}
-                    </td>
-                    <td className="px-6 py-4 text-right text-sm font-semibold">
-                      {row.count}
-                    </td>
+            <GlassCard className="overflow-hidden p-0">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border/60 bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+                    <th className="px-6 py-4">#</th>
+                    <th className="px-6 py-4">Sinh viên</th>
+                    <th className="px-6 py-4">Đơn vị</th>
+                    <th className="px-6 py-4 text-right">Hoạt động</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </GlassCard>
+                </thead>
+                <tbody>
+                  {LEADERBOARD.map((row) => (
+                    <tr
+                      key={row.rank}
+                      className="border-b border-border/40 last:border-0 transition-colors hover:bg-accent/40"
+                    >
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+                            row.rank <= 3
+                              ? "bg-primary text-white"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {row.rank}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium">{row.name}</td>
+                      <td className="px-6 py-4 text-sm text-muted-foreground">
+                        {row.unit}
+                      </td>
+                      <td className="px-6 py-4 text-right text-sm font-semibold">
+                        {row.count}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </GlassCard>
+          </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="mx-auto max-w-7xl px-4 pb-24 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-24 lg:px-8">
         <div className="gradient-shell">
-          <div className="relative overflow-hidden p-12 md:p-16">
+          <div className="relative overflow-hidden p-16 md:p-24">
             <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[var(--gradient-primary)] opacity-20 blur-3xl" />
-            <div className="relative max-w-xl">
-              <h2 className="font-display text-4xl md:text-5xl">
-                Sẵn sàng bắt đầu <span className="text-gradient italic">hành trình</span>?
-              </h2>
-              <p className="mt-4 text-muted-foreground">
-                Tạo tài khoản miễn phí, đồng bộ minh chứng và xem chính xác bạn
-                còn cách danh hiệu SV5T bao xa.
-              </p>
-              <ul className="mt-6 space-y-2 text-sm">
-                {[
-                  "Theo dõi tiến độ qua ma trận 5 tiêu chí × 4 cấp",
-                  "Lưu trữ minh chứng PDF/JPG/PNG an toàn",
-                  "Gợi ý hoạt động phù hợp tiêu chí còn thiếu",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-2">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" strokeWidth={1.5} />
-                    {t}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                to="/register"
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--gradient-primary)] px-6 py-3 text-sm font-medium text-primary-foreground shadow-[var(--shadow-glow)]"
-              >
-                Tạo tài khoản
-                <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
-              </Link>
+            <div className="absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-rose/20 blur-3xl" />
+            <div className="relative grid gap-12 lg:grid-cols-[1fr_auto] lg:gap-20">
+              <div className="max-w-xl">
+                <h2 className="font-display text-4xl md:text-5xl">
+                  Sẵn sàng bắt đầu <span className="text-gradient italic">hành trình</span>?
+                </h2>
+                <p className="mt-4 text-muted-foreground">
+                  Tạo tài khoản miễn phí, đồng bộ minh chứng và xem chính xác bạn
+                  còn cách danh hiệu SV5T bao xa.
+                </p>
+                <ul className="mt-6 space-y-2 text-sm">
+                  {[
+                    "Theo dõi tiến độ qua ma trận 5 tiêu chí × 4 cấp",
+                    "Lưu trữ minh chứng PDF/JPG/PNG an toàn",
+                    "Gợi ý hoạt động phù hợp tiêu chí còn thiếu",
+                  ].map((t) => (
+                    <li key={t} className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" strokeWidth={1.5} />
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  to="/register"
+                  className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition-all hover:bg-primary/90 hover:scale-[1.02]"
+                >
+                  Tạo tài khoản
+                  <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+                </Link>
+              </div>
+              {/* Progress matrix visual */}
+              <div className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center">
+                <div className="grid grid-cols-2 gap-3">
+                  {CRITERIA.map((c) => (
+                    <div
+                      key={c.id}
+                      className="flex h-20 w-20 flex-col items-center justify-center rounded-2xl border border-border/60 bg-surface/80 backdrop-blur"
+                      style={{
+                        borderColor: `color-mix(in oklab, ${c.colorVar} 30%, transparent)`,
+                      }}
+                    >
+                      <div
+                        className="h-3 w-3 rounded-full"
+                        style={{ backgroundColor: c.colorVar }}
+                      />
+                      <span className="mt-1.5 text-[10px] font-medium text-muted-foreground">
+                        {c.short}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-4 text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Ma trận 5 tiêu chí
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -277,7 +311,7 @@ function StatCard({
   return (
     <GlassCard className="p-6">
       <div className="flex items-center gap-4">
-        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[var(--gradient-primary)] text-primary-foreground">
+        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-white">
           <Icon className="h-5 w-5" strokeWidth={1.5} />
         </div>
         <div>

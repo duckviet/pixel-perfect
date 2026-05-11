@@ -1,13 +1,49 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, Calendar, MapPin } from "lucide-react";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { Search, Calendar, MapPin, SlidersHorizontal } from "lucide-react";
 import { useMemo, useState } from "react";
 import { GlassCard } from "@/components/common/GlassCard";
 import { CriterionBadge } from "@/components/common/CriterionBadge";
+import { ActivityThumbnail } from "@/components/common/ActivityThumbnail";
 import { CRITERIA, type CriterionType } from "@/lib/criteria";
-import { ACTIVITIES, REVIEW_LEVELS } from "@/lib/mock-data";
+import { ACTIVITIES, REVIEW_LEVELS, type Activity } from "@/lib/mock-data";
+import { useRegisteredActivities } from "@/hooks/use-registered-activities";
 import { SectionHeader } from "./index";
 
+type LevelFilter = Activity["reviewLevel"] | "ALL";
+type StatusFilter = "ALL" | "OPEN" | "UPCOMING" | "ENDED";
+
+function getActivityStatus(a: Activity): "OPEN" | "UPCOMING" | "ENDED" {
+  const now = new Date();
+  const start = new Date(a.startAt);
+  const end = new Date(a.endAt);
+  if (now < start) return "UPCOMING";
+  if (now > end) return "ENDED";
+  return "OPEN";
+}
+
+const STATUS_LABELS: Record<StatusFilter, string> = {
+  ALL: "Tất cả",
+  OPEN: "Đang mở",
+  UPCOMING: "Sắp diễn ra",
+  ENDED: "Đã kết thúc",
+};
+
+const LEVEL_OPTIONS: { value: LevelFilter; label: string }[] = [
+  { value: "ALL", label: "Tất cả cấp" },
+  { value: "TRUONG", label: "Cấp Trường" },
+  { value: "DHQGHN", label: "Cấp ĐHQGHN" },
+  { value: "THANH_PHO", label: "Cấp TP" },
+  { value: "TRUNG_UONG", label: "Cấp TW" },
+];
+
+const VALID_LEVELS = new Set<string>(["TRUONG", "DHQGHN", "THANH_PHO", "TRUNG_UONG"]);
+
 export const Route = createFileRoute("/activities")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    level: typeof search.level === "string" && VALID_LEVELS.has(search.level)
+      ? search.level
+      : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Hoạt động — Bản đồ 5 Tốt" },
@@ -22,8 +58,14 @@ export const Route = createFileRoute("/activities")({
 });
 
 function ActivitiesPage() {
+  const search = useSearch({ from: "/activities" });
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<CriterionType | "ALL">("ALL");
+  const [levelFilter, setLevelFilter] = useState<LevelFilter>(
+    (search.level as LevelFilter) ?? "ALL",
+  );
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const { isRegistered } = useRegisteredActivities();
 
   const filtered = useMemo(() => {
     return ACTIVITIES.filter((a) => {
@@ -32,9 +74,12 @@ function ActivitiesPage() {
         a.title.toLowerCase().includes(query.toLowerCase()) ||
         a.shortDescription.toLowerCase().includes(query.toLowerCase());
       const matchC = filter === "ALL" || a.criteria.includes(filter);
-      return matchQ && matchC;
+      const matchL = levelFilter === "ALL" || a.reviewLevel === levelFilter;
+      const matchS =
+        statusFilter === "ALL" || getActivityStatus(a) === statusFilter;
+      return matchQ && matchC && matchL && matchS;
     });
-  }, [query, filter]);
+  }, [query, filter, levelFilter, statusFilter]);
 
   return (
     <div>
@@ -47,7 +92,8 @@ function ActivitiesPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 lg:px-8">
-        <GlassCard className="flex flex-col gap-4 p-4 md:flex-row md:items-center">
+        <GlassCard className="flex flex-col gap-4 p-4">
+          {/* Search row */}
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
             <input
@@ -57,7 +103,9 @@ function ActivitiesPage() {
               className="h-11 w-full rounded-full border border-border bg-background pl-11 pr-4 text-sm outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
             />
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          {/* Criterion filter row */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
             <FilterChip active={filter === "ALL"} onClick={() => setFilter("ALL")}>
               Tất cả
             </FilterChip>
@@ -70,6 +118,38 @@ function ActivitiesPage() {
                 {c.short}
               </FilterChip>
             ))}
+          </div>
+          {/* Level + Status filter row */}
+          <div className="flex flex-wrap items-center gap-3 border-t border-border/60 pt-3">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              Cấp
+            </span>
+            {LEVEL_OPTIONS.map((opt) => (
+              <FilterChip
+                key={opt.value}
+                active={levelFilter === opt.value}
+                onClick={() => setLevelFilter(opt.value)}
+                size="sm"
+              >
+                {opt.label}
+              </FilterChip>
+            ))}
+            <span className="mx-2 h-4 w-px bg-border" />
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              Trạng thái
+            </span>
+            {(Object.entries(STATUS_LABELS) as [StatusFilter, string][]).map(
+              ([value, label]) => (
+                <FilterChip
+                  key={value}
+                  active={statusFilter === value}
+                  onClick={() => setStatusFilter(value)}
+                  size="sm"
+                >
+                  {label}
+                </FilterChip>
+              ),
+            )}
           </div>
         </GlassCard>
       </section>
@@ -91,9 +171,10 @@ function ActivitiesPage() {
                 className="group block"
               >
                 <GlassCard className="h-full overflow-hidden p-0 transition-all group-hover:-translate-y-1 group-hover:shadow-[var(--shadow-glow)]">
-                  <div
-                    className="aspect-[16/10] w-full"
-                    style={{ backgroundImage: a.thumbnailGradient }}
+                  <ActivityThumbnail
+                    gradient={a.thumbnailGradient}
+                    criteria={a.criteria}
+                    registered={isRegistered(a.slug)}
                   />
                   <div className="p-6">
                     <div className="flex flex-wrap items-center gap-1.5">
@@ -135,17 +216,23 @@ function FilterChip({
   active,
   onClick,
   children,
+  size = "md",
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
+  size?: "sm" | "md";
 }) {
   return (
     <button
       onClick={onClick}
-      className={`rounded-full px-4 py-2 text-xs font-medium transition-all ${
+      className={`rounded-full font-medium transition-all ${
+        size === "sm"
+          ? "px-3 py-1 text-[11px]"
+          : "px-4 py-2 text-xs"
+      } ${
         active
-          ? "bg-[var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-glow)]"
+          ? "bg-primary text-white shadow-[var(--shadow-glow)]"
           : "bg-background text-muted-foreground hover:bg-accent hover:text-foreground"
       }`}
     >

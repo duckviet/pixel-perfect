@@ -1,12 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 
-const NAV = [
+type NavItem = { to: "/" | "/criteria" | "/activities" | "/notifications"; label: string; exact?: boolean };
+const NAV: NavItem[] = [
   { to: "/", label: "Trang chủ", exact: true },
   { to: "/criteria", label: "Tiêu chí" },
   { to: "/activities", label: "Hoạt động" },
   { to: "/notifications", label: "Thông báo" },
-] as const;
+];
 
 export function SiteHeader() {
   return (

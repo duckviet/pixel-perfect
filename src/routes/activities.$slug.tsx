@@ -11,10 +11,7 @@ import {
 } from "lucide-react";
 import { GlassCard } from "@/components/common/GlassCard";
 import { CriterionBadge } from "@/components/common/CriterionBadge";
-import { ACTIVITIES, REVIEW_LEVELS } from "@/lib/mock-data";
-
-export const Route = createFileRoute("/activities/$slug")({
-import type { Activity } from "@/lib/mock-data";
+import { ACTIVITIES, REVIEW_LEVELS, type Activity } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/activities/$slug")({
   loader: ({ params }): Activity => {

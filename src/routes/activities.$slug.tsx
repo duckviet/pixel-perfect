@@ -14,7 +14,10 @@ import { CriterionBadge } from "@/components/common/CriterionBadge";
 import { ACTIVITIES, REVIEW_LEVELS } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/activities/$slug")({
-  loader: ({ params }) => {
+import type { Activity } from "@/lib/mock-data";
+
+export const Route = createFileRoute("/activities/$slug")({
+  loader: ({ params }): Activity => {
     const activity = ACTIVITIES.find((a) => a.slug === params.slug);
     if (!activity) throw notFound();
     return activity;

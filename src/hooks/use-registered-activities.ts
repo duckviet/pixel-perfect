@@ -2,7 +2,7 @@ import { useCallback, useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "registered_activities";
 
-function getRegistered(): Set<string> {
+function getRegisteredFromStorage(): Set<string> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return new Set();
@@ -12,31 +12,45 @@ function getRegistered(): Set<string> {
   }
 }
 
-const emptySet = new Set<string>();
-
-function getServerSnapshot(): Set<string> {
-  return emptySet;
-}
-
-function saveRegistered(set: Set<string>) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
-}
-
+let snapshot = getRegisteredFromStorage();
 let listeners: (() => void)[] = [];
 
 function subscribe(listener: () => void) {
   listeners.push(listener);
+  const handleStorage = (e: StorageEvent) => {
+    if (e.key === STORAGE_KEY) {
+      emitChange();
+    }
+  };
+  window.addEventListener("storage", handleStorage);
   return () => {
     listeners = listeners.filter((l) => l !== listener);
+    window.removeEventListener("storage", handleStorage);
   };
 }
 
+function getSnapshot() {
+  return snapshot;
+}
+
+const emptySet = new Set<string>();
+
+function getServerSnapshot() {
+  return emptySet;
+}
+
 function emitChange() {
+  snapshot = getRegisteredFromStorage();
   for (const l of listeners) l();
 }
 
+function saveRegistered(set: Set<string>) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
+  emitChange();
+}
+
 export function useRegisteredActivities() {
-  const registered = useSyncExternalStore(subscribe, getRegistered, getServerSnapshot);
+  const registered = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const isRegistered = useCallback(
     (slug: string) => registered.has(slug),
@@ -44,18 +58,17 @@ export function useRegisteredActivities() {
   );
 
   const register = useCallback((slug: string) => {
-    const set = getRegistered();
+    const set = getRegisteredFromStorage();
     set.add(slug);
     saveRegistered(set);
-    emitChange();
   }, []);
 
   const unregister = useCallback((slug: string) => {
-    const set = getRegistered();
+    const set = getRegisteredFromStorage();
     set.delete(slug);
     saveRegistered(set);
-    emitChange();
   }, []);
 
   return { registered, isRegistered, register, unregister };
 }
+

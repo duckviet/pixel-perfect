@@ -71,19 +71,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Bản đồ 5 Tốt — Hành trình Sinh viên 5 Tốt ULIS" },
+      { title: "bd5t" },
       {
         name: "description",
         content:
           "Nền tảng đồng hành cùng sinh viên ULIS theo dõi tiêu chí, hoạt động và tiến độ Sinh viên 5 Tốt.",
       },
-      { property: "og:title", content: "Bản đồ 5 Tốt — ULIS, VNU" },
+      { property: "og:title", content: "bd5t" },
       {
         property: "og:description",
         content:
           "Một bản đồ, năm tiêu chí: tra cứu hoạt động, lưu minh chứng, theo dõi tiến độ SV5T.",
       },
       { property: "og:type", content: "website" },
+      { name: "twitter:title", content: "bd5t" },
+      { name: "description", content: "Pixel Perfect is a web application that precisely replicates visual designs using a React-based framework." },
+      { property: "og:description", content: "Pixel Perfect is a web application that precisely replicates visual designs using a React-based framework." },
+      { name: "twitter:description", content: "Pixel Perfect is a web application that precisely replicates visual designs using a React-based framework." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b6421115-fe3e-4816-b310-7a91392c0631/id-preview-38fd208e--af8b158d-1890-4409-9333-5f48f16da430.lovable.app-1778524556142.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b6421115-fe3e-4816-b310-7a91392c0631/id-preview-38fd208e--af8b158d-1890-4409-9333-5f48f16da430.lovable.app-1778524556142.png" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
